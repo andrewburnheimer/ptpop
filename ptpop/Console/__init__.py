@@ -10,6 +10,7 @@ To Do:
 '''
 
 #import inspect
+import time
 import argparse
 
 # =============================================================================
@@ -39,42 +40,78 @@ class Console(object):
 
         # Default Values
         delay = 3.0
-        number = 0
+        number = 1 # XXX should be = 0
+        command = [ ]
+        listen = False
+        host = 'localhost'
         if args:
             delay = float(args.delay) if args.delay else delay
-            number = args.number if args.number else number
+            number = args.number if (args.number != None) else number
+            command = args.command if args.command else command
+            listen = args.listen if args.listen else listen
+            host = args.host if args.host else host
 
         # Input Checks
-        if args.commands == [ ]:
-            raise NotImplementedError('Interactive mode has not been ' +
-                    'implemented yet')
+        if command != [ ]:
+            raise NotImplementedError('Issuing commands to hosts has ' +
+                    'not been implemented yet')
 
         # init ...
-        for supplied_command in args.commands:
-            command = supplied_command.lower()
+        if listen:
 
-            if command == 'rv':
-                None
-                # "To do RV"
-        # root@raspberrypi:/home/puppet# ntpq -n -c rv -c peers
-        #associd=0 status=0615 leap_none, sync_ntp, 1 event, clock_sync,
-        #version="ntpd 4.2.6p5@1.2349-o Mon Nov  2 04:29:47 UTC 2015 (1)",
-        #processor="armv6l", system="Linux/4.1.17+", leap=00, stratum=3,
-        #precision=-20, rootdelay=2.916, rootdisp=60.561,
-        #refid=3.44.174.43,
-        #reftime=da7f3666.54078831  Mon, Feb 29 2016 21:28:06.328,
-        #clock=da7f38cd.57a72dc6  Mon, Feb 29 2016 21:38:21.342,
-        #peer=7185, tc=8,
-        #mintc=3, offset=9.208, frequency=-48.954, sys_jitter=0.000,
-        #clk_jitter=16.919, clk_wander=4.216
-            elif command == 'peers':
-                None
-                # "To do Peers"
-        #     remote           refid           st t when poll reach delay   offset  jitter
-        #     ==============================================================================
-        #     *3.44.174.43     3.199.96.254     2 u   90  256  377  1.558    9.208   4.993
-            else:
-                raise NotImplementedError('Unknown command: ' + command)
+            key = '''
+remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
+=========================================================================='''.strip()
+#*100.100.100.100 E2E  2 255 255 255 255 255 255 ab-cd-ef 128.0 128.0 128.0
+
+            while number > 0:
+                # Report output directly to console
+                fmt='%a %b %d %Y %H:%M:%S'
+                t = time.time()
+                time_str = time.strftime(fmt, time.localtime(t))
+                time_msecs = int((t - int(t)) * 1000)
+
+                print time_str + '.%03d ' % (time_msecs) + time.tzname[0]
+                print key
+
+                # output data seen in since last iteration
+
+                print
+                number -= 1
+                if number <= 0:
+                    exit(0)
+                    # No need to wait after the last iteration
+                time.sleep(delay)
+
+            # Enter into the interactive curses environment, exit when q
+            # is issued
+
+        else:
+            for supplied_command in command:
+                command = supplied_command.lower()
+
+                if command == 'rv' or command == 'readvar':
+                    None
+                    # "To do RV"
+            # root@raspberrypi:/home/puppet# ntpq -n -c rv -c peers
+            #associd=0 status=0615 leap_none, sync_ntp, 1 event, clock_sync,
+            #version="ntpd 4.2.6p5@1.2349-o Mon Nov  2 04:29:47 UTC 2015 (1)",
+            #processor="armv6l", system="Linux/4.1.17+", leap=00, stratum=3,
+            #precision=-20, rootdelay=2.916, rootdisp=60.561,
+            #refid=3.44.174.43,
+            #reftime=da7f3666.54078831  Mon, Feb 29 2016 21:28:06.328,
+            #clock=da7f38cd.57a72dc6  Mon, Feb 29 2016 21:38:21.342,
+            #peer=7185, tc=8,
+            #mintc=3, offset=9.208, frequency=-48.954, sys_jitter=0.000,
+            #clk_jitter=16.919, clk_wander=4.216
+                elif command == 'peers':
+                    None
+            #     remote           refid      st t when poll reach   delay   offset  jitter
+            #==============================================================================
+            #*useclsifl158.tf 3.199.96.254     2 u   14 1024  377    1.582    0.186   0.919
+                else:
+                    raise NotImplementedError('Unknown command, \'' +
+                            command + '\'')
 
 
 
@@ -133,20 +170,29 @@ def main():
         'insight into the operations of IEEE 1588 Precision Time Protocol ' +
         'domains on a network. Press the \'q\' key to quit.')
 
-    command_choices=['rv', 'peers']
-    parser.add_argument('commands', metavar='command', type=str, nargs='*',
-                        help='a command to run, then exit when finished: '
-                        + str(command_choices) + '. Otherwise, run ' +
-                        'interactively.')
-    parser.add_argument('-d', '--delay', metavar='secs.tenths', type=str,
+    command_choices=['readvar', 'rv', 'peers']
+    parser.add_argument('host', type=str, nargs='?', help='each of the ' +
+                        'commands will be sent to the PTP servers ' +
+                        'running on the host provided, localhost by ' +
+                        'default.')
+    parser.add_argument('-c', '--command', type=str, action='append',
+                        help='a command to run on the provided host, ' +
+                        'i.e. ' + str(command_choices) + ', \'readvar\' ' +
+                        'by default. Multiple commands can be issued.')
+    parser.add_argument('-l', '--listen', action='store_true',
+                        help='don\'t contact any PTP servers, but ' +
+                        'report on any services currently observed ' +
+                        'on the network, instead.')
+    parser.add_argument('-d', '--delay', metavar='SECS.TENTHS', type=str,
                         help='Specifies the delay between screen ' +
-                        'updates, can be changed using the \'d\' key in ' +
-                        'the interactive mode. Negative numbers are not ' +
-                        'allowed. Setting this value to 0 is the same ' +
-                        'as issuing the \'-n 1\' option.')
-    parser.add_argument('-n', '--number', metavar='count', type=int,
-                        help='Specifies the maximum number of iterations, ' +
-                        'before ending')
+                        'updates when interactive. Can be changed while ' +
+                        'running using the \'d\' key. Negative ' +
+                        'numbers are not allowed. Setting this value ' +
+                        'to 0 is the same as issuing the \'-n 1\' ' +
+                        'option.')
+    parser.add_argument('-n', '--number', metavar='COUNT', type=int,
+                        help='Specifies the maximum number of iterations ' +
+                        'in interactive mode before ending.')
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s $Id$')
 
