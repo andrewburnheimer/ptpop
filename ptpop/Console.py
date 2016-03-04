@@ -11,7 +11,6 @@ To Do:
 
 #import inspect
 import time
-import argparse
 
 # =============================================================================
 # Console
@@ -59,10 +58,10 @@ class Console(object):
         # init ...
         if listen:
 
+            #self.listener = Listener()
             key = '''
 remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
 =========================================================================='''.strip()
-#*100.100.100.100 E2E  2 255 255 255 255 255 255 ab-cd-ef 128.0 128.0 128.0
 
             while number > 0:
                 # Report output directly to console
@@ -75,6 +74,25 @@ remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
                 print key
 
                 # output data seen in since last iteration
+                #neighbor_stats = listener.ptp_neighbor_stats()
+                neighbor_stats = dict()
+
+                stats_str = str()
+                #stats_str += '%-15s' % neighbor_stats['src_addr']
+                #stats_str += ' % 3s' % neighbor_stats['delay_mode']
+                #stats_str += ' % 2d' % neighbor_stats['step_mode'] 
+                #stats_str += ' % 3d' % neighbor_stats['domain'] 
+                #stats_str += ' % 3d' % neighbor_stats['priority1'] 
+                #stats_str += ' % 3d' % neighbor_stats['class'] 
+                #stats_str += ' % 3d' % neighbor_stats['accuracy'] 
+                #stats_str += ' % 3d' % neighbor_stats['variance'] 
+                #stats_str += ' % 3d' % neighbor_stats['priority2'] 
+                #stats_str += ' % 8s' % neighbor_stats['uniq_id'][-8:]
+                #stats_str += ' %.1f' % neighbor_stats['sync_period'] 
+                #stats_str += ' %.1f' % neighbor_stats['delay_period'] 
+                #stats_str += ' %.1f' % neighbor_stats['announce_period'] 
+
+                print stats_str
 
                 print
                 number -= 1
@@ -115,10 +133,10 @@ remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
 
 
 
-#    def __Private_Method(self):
-#        '''
-#        Private Module
-#        '''
+#    def Private_Method(self):
+#       '''
+#       Private Module
+#       '''
         # Inputs
         # Module Code
         # Output
@@ -161,9 +179,10 @@ remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
 #==============================================================================
 # Class Test
 #==============================================================================
-if __name__ == '__main__':
-    # Test class
-    pass
+
+# __main__.py is executed when the package is instantiated
+#import ptpop.Console
+import argparse
 
 def main():
     parser = argparse.ArgumentParser(prog='ptpop', description='Gain ' +
@@ -204,3 +223,6 @@ def main():
         print type(e).__name__ + ": " + str(e.message)
         exit(-1)
         #print "Oops! " + str(inspect.getmembers(e))
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,5 @@
+.gitattributes
+ptpop.egg*
+*.swp
+*.pyc
+wheelhouse/
