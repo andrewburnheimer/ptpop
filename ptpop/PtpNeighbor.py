@@ -9,6 +9,8 @@ To Do:
     -
 '''
 
+import pcap
+
 # =============================================================================
 # PtpNeighbor
 # 
@@ -17,20 +19,9 @@ To Do:
 class PtpNeighbor(object):
     #def __init__(self, assign_input={}, *optional_value_input, **optional_dict_input):
     def __init__(self):
+        "Initialize a PtpNeighbor, to populate manually"
         '''
-        Console Initialization
-        Keyword Arguments:
-        ------------------
-        T.B.D.
-
-        Input Attributes:
-        -----------------
-        T.B.D.
-
-        Additional Attributes:
-        ----------------------
-        T.B.D.
-
+        All attributes will need to be assigned over time.
         '''
         self.src_addr = None
         self.delay_mode = None
@@ -42,10 +33,43 @@ class PtpNeighbor(object):
         self.variance = None
         self.priority2 = None
         self.uniq_id = None
-        self.sync_period = None
-        self.delay_period = None
-        self.announce_period = None
+        self._sync_period = None
+        self._delay_period = None
+        self._announce_period = None
 
+    @property
+    def sync_period(self):
+        """Get the latest calculated sync_period"""
+        return self._sync_period
+
+    @property
+    def delay_period(self):
+        """Get the latest calculated delay_period"""
+        return self._delay_period
+
+    @property
+    def announce_period(self):
+        """Get the latest calculated announce_period"""
+        return self._announce_period
+
+    # TODO - Rough draft
+    @classmethod
+    def from_pcap_file(cls, filename):
+        "Initialize PtpNeighbor from a file with a single announce packet"
+        pcap_data = pcap.pcap(filename)
+        # According to the pcap data, set this objects' properties
+        o = cls()
+        o.src_addr = None
+        o.delay_mode = None
+        o.step_mode = None
+        o.domain = None
+        o.priority1 = None
+        o.clock_class = None
+        o.accuracy = None
+        o.variance = None
+        o.priority2 = None
+        o.uniq_id = None
+        return o
 
         # Default Values
 
@@ -135,9 +159,9 @@ class TestPtpNeighbor(unittest.TestCase):
         self.assertIsNone(pn.delay_period)
         self.assertIsNone(pn.announce_period)
 
-    @unittest.expectedFailure
-    def test_mock_return(self):
-        pn = PtpNeighbor()
+    # TODO - Rough draft
+    def test_new_from_pcap_file(self):
+        pn = PtpNeighbor.from_pcap_file('single_ptp_announce_packet.pcap')
 #*100.100.100.100 E2E  2 255 255 255 255 255 255 ab-cd-ef 128.0 128.0 128.0
         self.assertEqual(pn.src_addr, '100.100.100.100')
         self.assertEqual(pn.delay_mode, 'E2E')
@@ -165,6 +189,7 @@ class TestPtpNeighbor(unittest.TestCase):
         actual = str(pn)
         expected = "100.100.100.100 E2E  2 255 255 255 255 255 255 ab-cd-ef 128.0 128.0 128.0"
         self.assertEqual(actual, expected)
+
 
 if __name__ == '__main__':
     # Test class

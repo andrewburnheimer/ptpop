@@ -28,6 +28,10 @@ Contribute
 Please fork the GitHub project (http://github.inbcu.com/206443820),
 make any changes, commit and push to GitHub, and submit a pull request.
 
+Use PyZen as a continuous test runner:
+
+    ```pyzen ptpop/PtpNeighbor.py```
+
 Contact
 -------
 
