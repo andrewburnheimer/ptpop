@@ -60,8 +60,9 @@ class Console(object):
 
             #self.listener = Listener()
             key = '''
-remote           Dly St Dom Pr1  Cl Acc Var Pr2     Uniq SyncT  DlyT  AnnT
-=========================================================================='''.strip()
+remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  AnnT
+===================================================================================='''.strip()
+
 
             while number > 0:
                 # Report output directly to console

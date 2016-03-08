@@ -69,10 +69,13 @@ class AnnounceMessage(object):
     def __init__(self, bffr):
         "Initialize a AnnounceMessage"
         cursor = 0
-        self.enet_dst = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_DST_LEN])
+
+        self.enet_dst, = struct.unpack(">Q", '\x00\x00' + bffr[cursor:cursor + self.ENET_DST_LEN])
+        self.enet_dst_str = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_DST_LEN])
         cursor += self.ENET_DST_LEN
 
-        self.enet_src = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_SRC_LEN])
+        self.enet_src, = struct.unpack(">Q", '\x00\x00' + bffr[cursor:cursor + self.ENET_SRC_LEN])
+        self.enet_src_str = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_SRC_LEN])
         cursor += self.ENET_SRC_LEN
 
         self.enet_type = self.__Binary_Repr(bffr[cursor:cursor + self.ENET_TYPE_LEN])
@@ -108,10 +111,12 @@ class AnnounceMessage(object):
         self.ipv4_hdr_chksum = self.__Binary_Repr(bffr[cursor:cursor + self.IPV4_HDR_CHKSUM_LEN])
         cursor += self.IPV4_HDR_CHKSUM_LEN
 
-        self.ipv4_src = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_SRC_LEN])
+        self.ipv4_src, = struct.unpack(">L", bffr[cursor:cursor + self.IPV4_SRC_LEN])
+        self.ipv4_src_str = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_SRC_LEN])
         cursor += self.IPV4_SRC_LEN
 
-        self.ipv4_dst = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_DST_LEN])
+        self.ipv4_dst, = struct.unpack(">L", bffr[cursor:cursor + self.IPV4_DST_LEN])
+        self.ipv4_dst_str = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_DST_LEN])
         cursor += self.IPV4_DST_LEN
 
 
@@ -181,7 +186,7 @@ class AnnounceMessage(object):
         self.ptp_bmca_gm_clock_class, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_CLASS])
         cursor += self.PTP_BMCA_GM_CLOCK_CLASS
 
-        self.ptp_bmca_gm_clock_acc = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_ACC])
+        self.ptp_bmca_gm_clock_acc, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_ACC])
         cursor += self.PTP_BMCA_GM_CLOCK_ACC
 
         self.ptp_bmca_gm_clock_var, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_VAR])
@@ -236,8 +241,8 @@ class AnnounceMessage(object):
         stats_str = str()
         stats_str += '<ptp announce ID: '
         stats_str += self.ptp_clock_id + ' '
-        stats_str += self.ipv4_src + ' -> '
-        stats_str += self.ipv4_dst + ' seq: '
+        stats_str += self.ipv4_src_str + ' -> '
+        stats_str += self.ipv4_dst_str + ' seq: '
         stats_str += str(self.ptp_seq_id) + '>'
         return stats_str
 
@@ -286,8 +291,10 @@ class TestAnnounceMessage(unittest.TestCase):
         pc = pcap.pcap('single_ptp_announce_packet.pcap')
         ts, pkt = pc.next()
         am = AnnounceMessage(pkt)
-        self.assertEqual(am.enet_dst, '01:00:5e:00:01:81')
-        self.assertEqual(am.enet_src, '00:1c:73:b5:35:1d')
+        self.assertEqual(am.enet_dst, int('01005e000181', 16))
+        self.assertEqual(am.enet_dst_str, '01:00:5e:00:01:81')
+        self.assertEqual(am.enet_src, int('001c73b5351d', 16))
+        self.assertEqual(am.enet_src_str, '00:1c:73:b5:35:1d')
         self.assertEqual(am.enet_type, '0x0800')
 
         self.assertEqual(am.ipv4_ver, 4)
@@ -299,8 +306,10 @@ class TestAnnounceMessage(unittest.TestCase):
         self.assertEqual(am.ipv4_ttl, 1)
         self.assertEqual(am.ipv4_protocol, 17)
         self.assertEqual(am.ipv4_hdr_chksum, '0x1666')
-        self.assertEqual(am.ipv4_src, '192.168.1.2')
-        self.assertEqual(am.ipv4_dst, '224.0.1.129')
+        self.assertEqual(am.ipv4_src, int('c0a80102', 16))
+        self.assertEqual(am.ipv4_src_str, '192.168.1.2')
+        self.assertEqual(am.ipv4_dst, int('e0000181', 16))
+        self.assertEqual(am.ipv4_dst_str, '224.0.1.129')
 
         self.assertEqual(am.udp_src, 320)
         self.assertEqual(am.udp_dst, 320)
@@ -324,7 +333,7 @@ class TestAnnounceMessage(unittest.TestCase):
 
         self.assertEqual(am.ptp_bmca_priority1, 128)
         self.assertEqual(am.ptp_bmca_gm_clock_class, 6)
-        self.assertEqual(am.ptp_bmca_gm_clock_acc, '0x21')
+        self.assertEqual(am.ptp_bmca_gm_clock_acc, 33)
         self.assertEqual(am.ptp_bmca_gm_clock_var, 15652)
         self.assertEqual(am.ptp_bmca_priority2, 128)
         self.assertEqual(am.ptp_bmca_gm_clock_id, '0x080011fffe21a7f3')
