@@ -58,7 +58,8 @@ class Console(object):
         # init ...
         if listen:
 
-            #self.listener = Listener()
+            #self.listener = Listener('eth0')
+            self.listener = Listener()
             key = '''
 remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  AnnT
 ===================================================================================='''.strip()
@@ -75,25 +76,9 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
                 print key
 
                 # output data seen in since last iteration
-                #neighbor_stats = listener.ptp_neighbor_stats()
-                neighbor_stats = dict()
-
-                stats_str = str()
-                #stats_str += '%-15s' % neighbor_stats['src_addr']
-                #stats_str += ' % 3s' % neighbor_stats['delay_mode']
-                #stats_str += ' % 2d' % neighbor_stats['step_mode'] 
-                #stats_str += ' % 3d' % neighbor_stats['domain'] 
-                #stats_str += ' % 3d' % neighbor_stats['priority1'] 
-                #stats_str += ' % 3d' % neighbor_stats['class'] 
-                #stats_str += ' % 3d' % neighbor_stats['accuracy'] 
-                #stats_str += ' % 3d' % neighbor_stats['variance'] 
-                #stats_str += ' % 3d' % neighbor_stats['priority2'] 
-                #stats_str += ' % 8s' % neighbor_stats['uniq_id'][-8:]
-                #stats_str += ' %.1f' % neighbor_stats['sync_period'] 
-                #stats_str += ' %.1f' % neighbor_stats['delay_period'] 
-                #stats_str += ' %.1f' % neighbor_stats['announce_period'] 
-
-                print stats_str
+                neighbor_stats = listener.ptp_neighbors
+                for neighbor in neighbor_stats:
+                    print neighbor
 
                 print
                 number -= 1
