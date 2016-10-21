@@ -31,7 +31,6 @@ class PtpNeighbor(object):
         self._time_of_last_sync = 0
         self._time_of_last_delay = 0
         self._time_of_last_announce = 0
-        msg = AnnounceMessage(pkt)
         self.new_announce_message(pkt)
 
     @property

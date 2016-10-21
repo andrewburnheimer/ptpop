@@ -9,7 +9,7 @@ To Do:
     -
 '''
 
-#import inspect
+from Listener import Listener
 import time
 
 # =============================================================================
@@ -41,12 +41,14 @@ class Console(object):
         delay = 3.0
         number = 1 # XXX should be = 0
         command = [ ]
+        interface = 'eth0'
         listen = False
         host = 'localhost'
         if args:
             delay = float(args.delay) if args.delay else delay
             number = args.number if (args.number != None) else number
             command = args.command if args.command else command
+            interface = args.interface if args.interface else interface
             listen = args.listen if args.listen else listen
             host = args.host if args.host else host
 
@@ -57,9 +59,7 @@ class Console(object):
 
         # init ...
         if listen:
-
-            #self.listener = Listener('eth0')
-            self.listener = Listener()
+            self.listener = Listener(interface)
             key = '''
 remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  AnnT
 ===================================================================================='''.strip()
@@ -76,9 +76,9 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
                 print key
 
                 # output data seen in since last iteration
-                neighbor_stats = listener.ptp_neighbors
+                neighbor_stats = self.listener.ptp_neighbors
                 for neighbor in neighbor_stats:
-                    print neighbor
+                    print self.listener.ptp_neighbors[neighbor]
 
                 print
                 number -= 1
@@ -167,7 +167,6 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
 #==============================================================================
 
 # __main__.py is executed when the package is instantiated
-#import ptpop.Console
 import argparse
 
 def main():
@@ -184,6 +183,9 @@ def main():
                         help='a command to run on the provided host, ' +
                         'i.e. ' + str(command_choices) + ', \'readvar\' ' +
                         'by default. Multiple commands can be issued.')
+    parser.add_argument('-i', '--interface', type=str,
+                        help='interface to issue commands on or to ' +
+                        'observe on in listen mode.')
     parser.add_argument('-l', '--listen', action='store_true',
                         help='don\'t contact any PTP servers, but ' +
                         'report on any services currently observed ' +

@@ -12,6 +12,7 @@ To Do:
 import pcap
 import thread
 from PtpNeighbor import PtpNeighbor
+from PtpPacket import PtpPacket
 
 # =============================================================================
 # Listener
@@ -41,8 +42,11 @@ class Listener(object):
 
         # Input Checks
         if intf:
-            self._pcap = pcap.pcap(name=intf)
-            thread.start_new_thread(self._pcap.loop, (999, self._handle_received_packet))
+            self._event_pcap = pcap.pcap(name=intf)
+            self._event_pcap.setfilter('dst port 319 or dst port 320')
+            # UDP port 319: Sync, Delay_Req, Pdelay_Req, Pdelay_Resp
+            # UDP port 320: Follow_Up, Delay_Resp, Pdelay_Resp_Follow_Up, Announce, Management, Signaling
+            thread.start_new_thread(self._event_pcap.loop, (999, self._handle_received_packet))
 
 
     def read_from_pcap_file(self, filename):
@@ -82,14 +86,18 @@ class Listener(object):
         Keyword Arguments:
         ------------------
         #'''
-        pn = PtpNeighbor(data)
-        ptp_neighbor_key = "%s:%d" % (pn.src_addr_str, pn.domain)
+        pp = PtpPacket(data)
+        ptp_neighbor_key = "%s:%d" % (pp.src_addr_str, pp.domain)
 
         try:
             ptp_neighbor = self.ptp_neighbors[ptp_neighbor_key]
-            ptp_neighbor.new_announce_message(data)
+            if pp.ptp_control == 5:
+                ptp_neighbor.new_announce_message(data)
+            elif pp.ptp_control == 0:
+                ptp_neighbor.new_sync_message(data)
         except KeyError:
-            self.ptp_neighbors[ptp_neighbor_key] = pn
+            if pp.ptp_control == 5:
+                self.ptp_neighbors[ptp_neighbor_key] = PtpNeighbor(data)
 
 
 # =============================================================================
