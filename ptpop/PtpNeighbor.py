@@ -13,6 +13,7 @@ import pcap
 import re
 import datetime
 from AnnounceMessage import AnnounceMessage
+from SyncMessage import SyncMessage
 
 # =============================================================================
 # PtpNeighbor
@@ -59,6 +60,17 @@ class PtpNeighbor(object):
         if self._time_of_last_announce != 0:
             self._announce_period = (now - self._time_of_last_announce).total_seconds()
         self._time_of_last_announce = now
+
+    def new_sync_message(self, pkt):
+        '''
+        Take note of a sync message from this neighbor, to derive the
+
+        '''
+        msg = SyncMessage(pkt)
+        now = datetime.datetime.now()
+        if self._time_of_last_sync != 0:
+            self._sync_period = (now - self._time_of_last_sync).total_seconds()
+        self._time_of_last_sync = now
 
 #    def __Private_Method(self):
 #       '''
@@ -179,6 +191,24 @@ class TestPtpNeighbor(unittest.TestCase):
         self.assertIsNotNone(pn.announce_period)
         actual = str(pn)
         expected = "192.168.1.2     E2E  - 129 128   6 0x21 15652 128 001c73ffffb53519   -     -    0.67"
+        self.assertEqual(actual, expected)
+
+    def test_updating_sync_period(self):
+        ann_pc = pcap.pcap('single_ptp_announce_packet.pcap')
+        ts, pkt = ann_pc.next()
+        pn = PtpNeighbor(pkt)
+        self.assertIsNone(pn.sync_period)
+
+        sync_pc = pcap.pcap('single_ptp_sync_packet.pcap')
+        ts, pkt = sync_pc.next()
+        pn.new_sync_message(pkt)
+        time.sleep(0.333)
+        sync_pc = pcap.pcap('single_ptp_sync_packet.pcap')
+        ts, pkt = sync_pc.next()
+        pn.new_sync_message(pkt)
+        self.assertIsNotNone(pn.sync_period)
+        actual = str(pn)
+        expected = "192.168.1.2     E2E  - 129 128   6 0x21 15652 128 001c73ffffb53519  0.34   -     -  "
         self.assertEqual(actual, expected)
 
 

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 '''
-AnnounceMessage Class
+SyncMessage Class
 Informative Notes T.B.D...
 '''
 __version__ = '$Id$'
@@ -12,11 +12,11 @@ To Do:
 import struct
 
 # =============================================================================
-# AnnounceMessage
+# SyncMessage
 # 
 # Inheriting from `object` (top-level class)
 # =============================================================================
-class AnnounceMessage(object):
+class SyncMessage(object):
     ENET_DST_LEN = 6
     ENET_SRC_LEN = 6
     ENET_TYPE_LEN = 2
@@ -53,20 +53,9 @@ class AnnounceMessage(object):
     PTP_LOG_MESSAGE_PER = 1
     PTP_ORIGIN_TIMESTAMP_S = 6
     PTP_ORIGIN_TIMESTAMP_NS = 4
-    PTP_ORIGIN_CURRENT_UTC_OFFSET = 2
-
-    # 1 byte padding
-    PTP_BMCA_PRIORITY1 = 1
-    PTP_BMCA_GM_CLOCK_CLASS = 1
-    PTP_BMCA_GM_CLOCK_ACC = 1
-    PTP_BMCA_GM_CLOCK_VAR = 2
-    PTP_BMCA_PRIORITY2 = 1
-    PTP_BMCA_GM_CLOCK_ID = 8
-    PTP_LOCAL_STEPS_REMOVED = 2
-    PTP_TIME_SOURCE = 1
 
     def __init__(self, bffr):
-        "Initialize a AnnounceMessage"
+        "Initialize a SyncMessage"
         cursor = 0
 
         self.enet_dst, = struct.unpack(">Q", '\x00\x00' + bffr[cursor:cursor + self.ENET_DST_LEN])
@@ -173,36 +162,6 @@ class AnnounceMessage(object):
         self.ptp_origin_timestamp_ns = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_ORIGIN_TIMESTAMP_NS])
         cursor += self.PTP_ORIGIN_TIMESTAMP_NS
 
-        self.ptp_origin_current_utc_offset, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_ORIGIN_CURRENT_UTC_OFFSET])
-        cursor += self.PTP_ORIGIN_CURRENT_UTC_OFFSET
-
-
-        cursor += 1 # padding
-
-        self.ptp_bmca_priority1, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_PRIORITY1])
-        cursor += self.PTP_BMCA_PRIORITY1
-
-        self.ptp_bmca_gm_clock_class, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_CLASS])
-        cursor += self.PTP_BMCA_GM_CLOCK_CLASS
-
-        self.ptp_bmca_gm_clock_acc, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_ACC])
-        cursor += self.PTP_BMCA_GM_CLOCK_ACC
-
-        self.ptp_bmca_gm_clock_var, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_VAR])
-        cursor += self.PTP_BMCA_GM_CLOCK_VAR
-
-        self.ptp_bmca_priority2, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_BMCA_PRIORITY2])
-        cursor += self.PTP_BMCA_PRIORITY2
-
-        self.ptp_bmca_gm_clock_id = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_BMCA_GM_CLOCK_ID])
-        cursor += self.PTP_BMCA_GM_CLOCK_ID
-
-        self.ptp_local_steps_removed, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_LOCAL_STEPS_REMOVED])
-        cursor += self.PTP_LOCAL_STEPS_REMOVED
-
-        self.ptp_time_source = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_TIME_SOURCE])
-        cursor += self.PTP_TIME_SOURCE
-
 
     def __Binary_MAC_to_String(self, bin_data):
 #       '''
@@ -238,7 +197,7 @@ class AnnounceMessage(object):
 
     def __str__(self):
         stats_str = str()
-        stats_str += '<ptp announce ID: '
+        stats_str += '<ptp sync ID: '
         stats_str += self.ptp_clock_id + ' '
         stats_str += self.ipv4_src_str + ' -> '
         stats_str += self.ipv4_dst_str + ' seq: '
@@ -286,11 +245,11 @@ class AnnounceMessage(object):
 import pcap
 import unittest
 
-class TestAnnounceMessage(unittest.TestCase):
+class TestSyncMessage(unittest.TestCase):
     def test_new_from_pcap_file(self):
-        pc = pcap.pcap('single_ptp_announce_packet.pcap')
+        pc = pcap.pcap('single_ptp_sync_packet.pcap')
         ts, pkt = pc.next()
-        am = AnnounceMessage(pkt)
+        am = SyncMessage(pkt)
         self.assertEqual(am.enet_dst, int('01005e000181', 16))
         self.assertEqual(am.enet_dst_str, '01:00:5e:00:01:81')
         self.assertEqual(am.enet_src, int('001c73b5351d', 16))
@@ -299,52 +258,42 @@ class TestAnnounceMessage(unittest.TestCase):
 
         self.assertEqual(am.ipv4_ver, 4)
         self.assertEqual(am.ipv4_hdr_len, 20)
-        self.assertEqual(am.ipv4_diff_serv, '0x00')
-        self.assertEqual(am.ipv4_total_len, 92)
+        self.assertEqual(am.ipv4_diff_serv, '0x54')
+        self.assertEqual(am.ipv4_total_len, 72)
         self.assertEqual(am.ipv4_id, 0)
         self.assertEqual(am.ipv4_flags_offset, '0x0000')
         self.assertEqual(am.ipv4_ttl, 1)
         self.assertEqual(am.ipv4_protocol, 17)
-        self.assertEqual(am.ipv4_hdr_chksum, '0x1666')
+        self.assertEqual(am.ipv4_hdr_chksum, '0x1626')
         self.assertEqual(am.ipv4_src, int('c0a80102', 16))
         self.assertEqual(am.ipv4_src_str, '192.168.1.2')
         self.assertEqual(am.ipv4_dst, int('e0000181', 16))
         self.assertEqual(am.ipv4_dst_str, '224.0.1.129')
 
-        self.assertEqual(am.udp_src, 320)
-        self.assertEqual(am.udp_dst, 320)
-        self.assertEqual(am.udp_len, 72)
-        self.assertEqual(am.udp_chksum, '0x762a')
+        self.assertEqual(am.udp_src, 319)
+        self.assertEqual(am.udp_dst, 319)
+        self.assertEqual(am.udp_len, 52)
+        self.assertEqual(am.udp_chksum, '0x0d3f')
 
-        self.assertEqual(am.ptp_message_flags, '0x0b02')
-        self.assertEqual(am.ptp_message_len, 64)
+        self.assertEqual(am.ptp_message_flags, '0x0002')
+        self.assertEqual(am.ptp_message_len, 44)
         self.assertEqual(am.ptp_subdomain, 0)
-        self.assertEqual(am.ptp_flags, '0x003c')
+        self.assertEqual(am.ptp_flags, '0x0200')
         self.assertEqual(am.ptp_correction, '0x0000000000000000')
         self.assertEqual(am.ptp_clock_id, '0x001c73ffffb53519')
 
         self.assertEqual(am.ptp_source_port_id, 4)
-        self.assertEqual(am.ptp_seq_id, 20561)
-        self.assertEqual(am.ptp_control, 5)
-        self.assertEqual(am.ptp_log_message_per, 0)
+        self.assertEqual(am.ptp_seq_id, 41089)
+        self.assertEqual(am.ptp_control, 0)
+        self.assertEqual(am.ptp_log_message_per, 255)
         self.assertEqual(am.ptp_origin_timestamp_s, '0x000000000000')
         self.assertEqual(am.ptp_origin_timestamp_ns, '0x00000000')
-        self.assertEqual(am.ptp_origin_current_utc_offset, 36)
-
-        self.assertEqual(am.ptp_bmca_priority1, 128)
-        self.assertEqual(am.ptp_bmca_gm_clock_class, 6)
-        self.assertEqual(am.ptp_bmca_gm_clock_acc, 33)
-        self.assertEqual(am.ptp_bmca_gm_clock_var, 15652)
-        self.assertEqual(am.ptp_bmca_priority2, 128)
-        self.assertEqual(am.ptp_bmca_gm_clock_id, '0x080011fffe21a7f3')
-        self.assertEqual(am.ptp_local_steps_removed, 1)
-        self.assertEqual(am.ptp_time_source, '0x20')
 
     def test_str_from_pcap_file(self):
-        pc = pcap.pcap('single_ptp_announce_packet.pcap')
+        pc = pcap.pcap('single_ptp_sync_packet.pcap')
         ts, pkt = pc.next()
-        actual = str(AnnounceMessage(pkt))
-        expected = '<ptp announce ID: 0x001c73ffffb53519 192.168.1.2 -> 224.0.1.129 seq: 20561>'
+        actual = str(SyncMessage(pkt))
+        expected = '<ptp sync ID: 0x001c73ffffb53519 192.168.1.2 -> 224.0.1.129 seq: 41089>'
         self.assertEqual(actual, expected)
 
 
