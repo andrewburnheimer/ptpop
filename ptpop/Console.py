@@ -1,9 +1,7 @@
 #!/usr/local/bin/python
 '''
 Console Class
-Informative Notes T.B.D...
 '''
-__version__ = '$Id$'
 '''
 To Do:
     -
@@ -11,6 +9,7 @@ To Do:
 
 from Listener import Listener
 import time
+import os
 
 # =============================================================================
 # Console
@@ -18,23 +17,13 @@ import time
 # Inheriting from `object` (top-level class)
 # =============================================================================
 class Console(object):
-    #def __init__(self, assign_input={}, *optional_value_input, **optional_dict_input):
     def __init__(self, args=None):
         '''
         Console Initialization
-        Keyword Arguments:
-        ------------------
-        T.B.D.
-
         Input Attributes:
         -----------------
         self.args -> argparse.Namespace: object holding attributes set
                                          on command-line.
-
-        Additional Attributes:
-        ----------------------
-        T.B.D.
-
         '''
 
         # Default Values
@@ -87,8 +76,8 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
                     # No need to wait after the last iteration
                 time.sleep(delay)
 
-            # Enter into the interactive curses environment, exit when q
-            # is issued
+            # Enter into the interactive environment, exit when q is
+            # issued
 
         else:
             for supplied_command in command:
@@ -96,7 +85,7 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
 
                 if command == 'rv' or command == 'readvar':
                     None
-                    # "To do RV"
+                    # Assuming to be similar to NTPQ
             # root@raspberrypi:/home/puppet# ntpq -n -c rv -c peers
             #associd=0 status=0615 leap_none, sync_ntp, 1 event, clock_sync,
             #version="ntpd 4.2.6p5@1.2349-o Mon Nov  2 04:29:47 UTC 2015 (1)",
@@ -110,6 +99,7 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
             #clk_jitter=16.919, clk_wander=4.216
                 elif command == 'peers':
                     None
+                    # Assuming to be similar to NTPQ
             #     remote           refid      st t when poll reach   delay   offset  jitter
             #==============================================================================
             #*useclsifl158.tf 3.199.96.254     2 u   14 1024  377    1.582    0.186   0.919
@@ -117,59 +107,14 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
                     raise NotImplementedError('Unknown command, \'' +
                             command + '\'')
 
-
-
-#    def Private_Method(self):
-#       '''
-#       Private Module
-#       '''
-        # Inputs
-        # Module Code
-        # Output
-
-#    def Public_Method(self):
-#        '''
-#        Private Module
-#        '''
-        # Inputs
-        # Module Code
-        # Output
-
-#    def Public_Static_Method():
-
-#    def Public_Class_Method(cls):
-
-
-# =============================================================================
-# Private Module Functions
-# =============================================================================
-#def __Private_Function(inputs):
-#        '''
-#        Private Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
-
-# =============================================================================
-# Public Module Functions
-# =============================================================================
-#def Public_Function(inputs):
-#        '''
-#        Public Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
-
-#==============================================================================
-# Class Test
-#==============================================================================
-
 # __main__.py is executed when the package is instantiated
 import argparse
 
 def main():
+    version = ""
+    with open(os.path.join('./', 'VERSION')) as version_file:
+        version = version_file.read().strip()
+
     parser = argparse.ArgumentParser(prog='ptpop', description='Gain ' +
         'insight into the operations of IEEE 1588 Precision Time Protocol ' +
         'domains on a network. Press the \'q\' key to quit.')
@@ -201,16 +146,15 @@ def main():
                         help='Specifies the maximum number of iterations ' +
                         'in interactive mode before ending.')
     parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s $Id$')
+                        version='%(prog)s ' + version)
 
     args = parser.parse_args()
     try:
         c = Console(args)
-    #    break
+
     except Exception as e:
         print type(e).__name__ + ": " + str(e.message)
         exit(-1)
-        #print "Oops! " + str(inspect.getmembers(e))
 
 if __name__ == '__main__':
     main()

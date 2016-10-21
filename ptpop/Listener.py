@@ -1,12 +1,6 @@
 #!/usr/local/bin/python
 '''
 Listener Class
-Informative Notes T.B.D...
-'''
-__version__ = '$Id$'
-'''
-To Do:
-    -
 '''
 
 import pcap
@@ -20,23 +14,15 @@ from PtpPacket import PtpPacket
 # Inheriting from `object` (top-level class)
 # =============================================================================
 class Listener(object):
-    #def __init__(self, assign_input={}, *optional_value_input, **optional_dict_input):
     def __init__(self, intf=None):
         '''
         Listener Initialization
-        Keyword Arguments:
-        ------------------
-        T.B.D.
 
         Input Attributes:
-        -----------------
-        T.B.D.
-
-        Additional Attributes:
-        ----------------------
-        T.B.D.
-
+        ------------------
+        intf: network interface the listener should observe
         '''
+
         # Default Values
         self.ptp_neighbors = dict()
 
@@ -63,18 +49,6 @@ class Listener(object):
         l.read_from_pcap_file(filename)
         return l
 
-#    def Public_Method(self):
-#        '''
-#        Private Module
-#        '''
-        # Inputs
-        # Module Code
-        # Output
-
-#    def Public_Static_Method():
-
-#    def Public_Class_Method(cls):
-
 
 # =============================================================================
 # Private Module Functions
@@ -99,17 +73,6 @@ class Listener(object):
             if pp.ptp_control == 5:
                 self.ptp_neighbors[ptp_neighbor_key] = PtpNeighbor(data)
 
-
-# =============================================================================
-# Public Module Functions
-# =============================================================================
-#def Public_Function(inputs):
-#        '''
-#        Public Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
 
 #==============================================================================
 # Class Test

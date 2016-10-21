@@ -1,12 +1,6 @@
 #!/usr/local/bin/python
 '''
 SyncMessage Class
-Informative Notes T.B.D...
-'''
-__version__ = '$Id$'
-'''
-To Do:
-    -
 '''
 
 import struct
@@ -55,18 +49,25 @@ class SyncMessage(object):
     PTP_ORIGIN_TIMESTAMP_NS = 4
 
     def __init__(self, bffr):
-        "Initialize a SyncMessage"
+        '''
+        SyncMessage Initialization
+
+        Input Attributes:
+        ------------------
+        bffr: captured packet string to decode
+        '''
+
         cursor = 0
 
         self.enet_dst, = struct.unpack(">Q", '\x00\x00' + bffr[cursor:cursor + self.ENET_DST_LEN])
-        self.enet_dst_str = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_DST_LEN])
+        self.enet_dst_str = self._Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_DST_LEN])
         cursor += self.ENET_DST_LEN
 
         self.enet_src, = struct.unpack(">Q", '\x00\x00' + bffr[cursor:cursor + self.ENET_SRC_LEN])
-        self.enet_src_str = self.__Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_SRC_LEN])
+        self.enet_src_str = self._Binary_MAC_to_String(bffr[cursor:cursor + self.ENET_SRC_LEN])
         cursor += self.ENET_SRC_LEN
 
-        self.enet_type = self.__Binary_Repr(bffr[cursor:cursor + self.ENET_TYPE_LEN])
+        self.enet_type = self._Binary_Repr(bffr[cursor:cursor + self.ENET_TYPE_LEN])
         cursor += self.ENET_TYPE_LEN
 
         self.ipv4_ver = 0
@@ -78,7 +79,7 @@ class SyncMessage(object):
         cursor += self.IPV4_VER_LEN
 
 
-        self.ipv4_diff_serv = self.__Binary_Repr(bffr[cursor:cursor + self.IPV4_DIFF_SERV_LEN])
+        self.ipv4_diff_serv = self._Binary_Repr(bffr[cursor:cursor + self.IPV4_DIFF_SERV_LEN])
         cursor += self.IPV4_DIFF_SERV_LEN
 
         self.ipv4_total_len, = struct.unpack(">H", bffr[cursor:cursor + self.IPV4_TOTAL_LEN])
@@ -87,7 +88,7 @@ class SyncMessage(object):
         self.ipv4_id, = struct.unpack(">H", bffr[cursor:cursor + self.IPV4_ID_LEN])
         cursor += self.IPV4_ID_LEN
 
-        self.ipv4_flags_offset = self.__Binary_Repr(bffr[cursor:cursor + self.IPV4_FLAGS_OFFSET_LEN])
+        self.ipv4_flags_offset = self._Binary_Repr(bffr[cursor:cursor + self.IPV4_FLAGS_OFFSET_LEN])
         cursor += self.IPV4_FLAGS_OFFSET_LEN
 
         self.ipv4_ttl, = struct.unpack(">B", bffr[cursor:cursor + self.IPV4_TTL_LEN])
@@ -96,15 +97,15 @@ class SyncMessage(object):
         self.ipv4_protocol, = struct.unpack(">B", bffr[cursor:cursor + self.IPV4_PROTOCOL_LEN])
         cursor += self.IPV4_PROTOCOL_LEN
 
-        self.ipv4_hdr_chksum = self.__Binary_Repr(bffr[cursor:cursor + self.IPV4_HDR_CHKSUM_LEN])
+        self.ipv4_hdr_chksum = self._Binary_Repr(bffr[cursor:cursor + self.IPV4_HDR_CHKSUM_LEN])
         cursor += self.IPV4_HDR_CHKSUM_LEN
 
         self.ipv4_src, = struct.unpack(">L", bffr[cursor:cursor + self.IPV4_SRC_LEN])
-        self.ipv4_src_str = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_SRC_LEN])
+        self.ipv4_src_str = self._Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_SRC_LEN])
         cursor += self.IPV4_SRC_LEN
 
         self.ipv4_dst, = struct.unpack(">L", bffr[cursor:cursor + self.IPV4_DST_LEN])
-        self.ipv4_dst_str = self.__Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_DST_LEN])
+        self.ipv4_dst_str = self._Binary_IPV4_to_String(bffr[cursor:cursor + self.IPV4_DST_LEN])
         cursor += self.IPV4_DST_LEN
 
 
@@ -117,11 +118,11 @@ class SyncMessage(object):
         self.udp_len, = struct.unpack(">H", bffr[cursor:cursor + self.UDP_LEN_LEN])
         cursor += self.UDP_LEN_LEN
 
-        self.udp_chksum = self.__Binary_Repr(bffr[cursor:cursor + self.UDP_CHKSUM_LEN])
+        self.udp_chksum = self._Binary_Repr(bffr[cursor:cursor + self.UDP_CHKSUM_LEN])
         cursor += self.UDP_CHKSUM_LEN
 
 
-        self.ptp_message_flags = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_MESSAGE_FLAGS])
+        self.ptp_message_flags = self._Binary_Repr(bffr[cursor:cursor + self.PTP_MESSAGE_FLAGS])
         cursor += self.PTP_MESSAGE_FLAGS
 
         self.ptp_message_len, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_MESSAGE_LEN])
@@ -132,16 +133,16 @@ class SyncMessage(object):
 
         cursor += 1 # padding
 
-        self.ptp_flags = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_FLAGS])
+        self.ptp_flags = self._Binary_Repr(bffr[cursor:cursor + self.PTP_FLAGS])
         cursor += self.PTP_FLAGS
 
-        self.ptp_correction = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_CORRECTION])
+        self.ptp_correction = self._Binary_Repr(bffr[cursor:cursor + self.PTP_CORRECTION])
         cursor += self.PTP_CORRECTION
 
 
         cursor += 4 # padding
 
-        self.ptp_clock_id = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_CLOCK_ID])
+        self.ptp_clock_id = self._Binary_Repr(bffr[cursor:cursor + self.PTP_CLOCK_ID])
         cursor += self.PTP_CLOCK_ID
 
         self.ptp_source_port_id, = struct.unpack(">H", bffr[cursor:cursor + self.PTP_SOURCE_PORT_ID])
@@ -156,42 +157,24 @@ class SyncMessage(object):
         self.ptp_log_message_per, = struct.unpack(">B", bffr[cursor:cursor + self.PTP_LOG_MESSAGE_PER])
         cursor += self.PTP_LOG_MESSAGE_PER
 
-        self.ptp_origin_timestamp_s = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_ORIGIN_TIMESTAMP_S])
+        self.ptp_origin_timestamp_s = self._Binary_Repr(bffr[cursor:cursor + self.PTP_ORIGIN_TIMESTAMP_S])
         cursor += self.PTP_ORIGIN_TIMESTAMP_S
 
-        self.ptp_origin_timestamp_ns = self.__Binary_Repr(bffr[cursor:cursor + self.PTP_ORIGIN_TIMESTAMP_NS])
+        self.ptp_origin_timestamp_ns = self._Binary_Repr(bffr[cursor:cursor + self.PTP_ORIGIN_TIMESTAMP_NS])
         cursor += self.PTP_ORIGIN_TIMESTAMP_NS
 
 
-    def __Binary_MAC_to_String(self, bin_data):
-#       '''
-#       Private Module
-#       '''
-        # Inputs
-        # Module Code
-        # Output
+    def _Binary_MAC_to_String(self, bin_data):
         return "%02x:%02x:%02x:%02x:%02x:%02x" % struct.unpack("BBBBBB",bin_data)
 
-    def __Binary_Repr(self, bin_data):
-#       '''
-#       Private Module
-#       '''
-        # Inputs
-        # Module Code
-        # Output
+    def _Binary_Repr(self, bin_data):
         ret_str = str()
         ret_str += "0x"
         for byte in bin_data:
             ret_str += "%02x" % struct.unpack("B", byte)
         return ret_str
 
-    def __Binary_IPV4_to_String(self, bin_data):
-#       '''
-#       Private Module
-#       '''
-        # Inputs
-        # Module Code
-        # Output
+    def _Binary_IPV4_to_String(self, bin_data):
         return "%d.%d.%d.%d" % struct.unpack("BBBB",bin_data)
 
 
@@ -204,40 +187,6 @@ class SyncMessage(object):
         stats_str += str(self.ptp_seq_id) + '>'
         return stats_str
 
-#    def Public_Method(self):
-#        '''
-#        Public Module
-#        '''
-        # Inputs
-        # Module Code
-        # Output
-
-#    def Public_Static_Method():
-
-#    def Public_Class_Method(cls):
-
-
-# =============================================================================
-# Private Module Functions
-# =============================================================================
-#def __Private_Function(inputs):
-#        '''
-#        Private Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
-
-# =============================================================================
-# Public Module Functions
-# =============================================================================
-#def Public_Function(inputs):
-#        '''
-#        Public Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
 
 #==============================================================================
 # Class Test

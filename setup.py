@@ -1,14 +1,18 @@
+import os
 from setuptools import setup, find_packages
+
+version = ""
+with open(os.path.join('./', 'VERSION')) as version_file:
+    version = version_file.read().strip()
+
 setup(
     name="ptpop",
-    version="0.0.1",
+    version=version,
     packages=find_packages(),
-    # >>> find_packages()
-    # ['ptpop', 'ptpop.Animals', 'ptpop.HelloModule']
     author='Andrew Burnheimer',
     author_email='Andrew.Burnheimer@nbcuni.com',
-    url='http://github.inbcu.com/oats-prd/ptpop',
-    description='Top for IEEE 1588 PTP',
+    url='http://github.com/andrewburnheimer/ptpop',
+    description='top for PTP',
     license='CC-By-SA-4.0',
     install_requires=['pypcap'],
     entry_points={

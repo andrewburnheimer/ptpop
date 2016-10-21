@@ -7,12 +7,15 @@
 Package Ptpop
 Docstrings: http://www.python.org/dev/peps/pep-0257/
 """
+import os
 
 __author__ = 'Andrew Burnheimer (Andrew.Burnheimer@nbcuni.com)'
 __copyright__ = 'Copyright (c) 2016 Andrew Burnheimer'
 __license__ = 'Creative Commons Attribution and ShareAlike'
-__vcs_id__ = '$Id$'
-__version__ = '0.0.1' #Versioning: http://www.python.org/dev/peps/pep-0386/
+__version__ = ""
+
+with open(os.path.join('./', 'VERSION')) as version_file:
+    __version__ = version_file.read().strip()
 
 from Console import Console
 from Listener import Listener

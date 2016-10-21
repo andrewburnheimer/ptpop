@@ -1,12 +1,6 @@
 #!/usr/local/bin/python
 '''
 PtpNeighbor Class
-Informative Notes T.B.D...
-'''
-__version__ = '$Id$'
-'''
-To Do:
-    -
 '''
 
 import pcap
@@ -21,10 +15,16 @@ from SyncMessage import SyncMessage
 # Inheriting from `object` (top-level class)
 # =============================================================================
 class PtpNeighbor(object):
-    #def __init__(self, assign_input={}, *optional_value_input, **optional_dict_input):
-
     def __init__(self, pkt):
-        "Initialize PtpNeighbor from a PTP Announce packet"
+        '''
+        PtpPacket Initialization
+
+        Input Attributes:
+        ------------------
+        pkt: PTP Announce packet to derive PTP details of this neighbor
+             from
+        '''
+
         self._sync_period = None
         self._delay_period = None
         self._announce_period = None
@@ -51,7 +51,7 @@ class PtpNeighbor(object):
     def new_announce_message(self, pkt):
         '''
         Take note of an announce message from this neighbor, to derive
-        the their periodicity
+        its periodicity
         '''
         msg = AnnounceMessage(pkt)
         self._update_announce_params(msg)
@@ -63,7 +63,7 @@ class PtpNeighbor(object):
     def new_sync_message(self, pkt):
         '''
         Take note of a sync message from this neighbor, to derive the
-
+        its periodicity
         '''
         msg = SyncMessage(pkt)
         now = datetime.datetime.now()
@@ -71,15 +71,12 @@ class PtpNeighbor(object):
             self._sync_period = (now - self._time_of_last_sync).total_seconds()
         self._time_of_last_sync = now
 
-#    def __Private_Method(self):
-#       '''
-#       Private Module
-#       '''
-        # Inputs
-        # Module Code
-        # Output
 
     def _update_announce_params(self, msg):
+        '''
+        Update all parameters for this neighbor using info. contained
+        in the announce message
+        '''
         # According to the pcap data, set this objects' properties
         self.src_addr_str = msg.ipv4_src_str
         # Obliged to update delay_mode after P_Delay_Req received 
@@ -118,32 +115,6 @@ class PtpNeighbor(object):
         stats_str += ( ' % 2.2f' % self.announce_period ) if self.announce_period != None else '   -  '
         return stats_str
 
-#    def Public_Static_Method():
-
-#    def Public_Class_Method(cls):
-
-
-# =============================================================================
-# Private Module Functions
-# =============================================================================
-#def __Private_Function(inputs):
-#        '''
-#        Private Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
-
-# =============================================================================
-# Public Module Functions
-# =============================================================================
-#def Public_Function(inputs):
-#        '''
-#        Public Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
 
 #==============================================================================
 # Class Test
