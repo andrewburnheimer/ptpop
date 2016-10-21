@@ -14,7 +14,7 @@ http://www.meinbergglobal.com/english/sw/#ptp-mon .
 
 Commercial and private use are permitted. Distribution, modification,
 and sublicensing at the moment are all forbidden. Specific copyright
-details T.B.D, and will be provided in the file LICENSE.md.
+details T.B.D, and will be provided in the file LICENSE.txt.
 
 
 ## Pre-Requisites
