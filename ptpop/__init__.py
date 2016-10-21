@@ -18,7 +18,3 @@ from Console import Console
 from Listener import Listener
 from PtpNeighbor import PtpNeighbor
 from AnnounceMessage import AnnounceMessage
-
-def test():
-    """ Testing Docstring"""
-    pass
