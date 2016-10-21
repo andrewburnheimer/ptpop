@@ -1,4 +1,4 @@
-= PTPop
+# PTPop
 
 PTPop provides a dynamic, real-time view of IEEE 1588 Precision Time
 Protocol domains operating on a network. The name is yet another, more
@@ -10,14 +10,14 @@ form-factor is the Meinberg PTP Monitor, available at
 http://www.meinbergglobal.com/english/sw/#ptp-mon .
 
 
--- License
+## License
 
 Commercial and private use are permitted. Distribution, modification,
 and sublicensing at the moment are all forbidden. Specific copyright
 details T.B.D, and will be provided in the file LICENSE.md.
 
 
--- Pre-Requisites
+## Pre-Requisites
 
 Maintained in the `setup.py` file. The following command will
 automatically handle their installation.
@@ -27,7 +27,7 @@ pip install pypcap
 ```
 
 
--- Usage
+## Usage
 
 For use in your application, import the library with `import ptpop`.
 
@@ -37,7 +37,7 @@ For command line usage, see usage document with:
 (ptpop)root@raspberrypi:~/ptpop# python -m ptpop.Console -h
 ```
 
---- Example
+### Example
 
 ```
 (ptpop)root@raspberrypi:~/ptpop# python -m ptpop.Console -n 4 -l
@@ -62,13 +62,13 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
 ```
 
 
--- Contribute
+## Contribute
 
 Please fork the GitHub project (http://github.com/andrewburnheimer/ptpop),
 make any changes, commit and push to GitHub, and submit a pull request.
 
 
---- Develop
+### Develop
 
 Use a Python environment manager, such as http://virtualenv.pypa.io :
 
@@ -81,7 +81,7 @@ run the application, continue development, or test.
 with the PyZen continuous test runner: `pyzen ptpop/PtpNeighbor.py`
 
 
--- Contact
+## Contact
 
 This project was initiated by Andrew Burnheimer.
 
