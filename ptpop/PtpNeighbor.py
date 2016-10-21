@@ -11,6 +11,7 @@ To Do:
 
 import pcap
 import re
+import datetime
 from AnnounceMessage import AnnounceMessage
 
 # =============================================================================
@@ -23,24 +24,14 @@ class PtpNeighbor(object):
 
     def __init__(self, pkt):
         "Initialize PtpNeighbor from a PTP Announce packet"
-        msg = AnnounceMessage(pkt)
-        # According to the pcap data, set this objects' properties
-        self.src_addr_str = msg.ipv4_src_str
-        # Obliged to update delay_mode after P_Delay_Req received 
-        self.delay_mode = "E2E"
-        # Obliged to update step_mode after sync received 
-        self.step_mode = None
-        self.domain = msg.ipv4_dst % 256
-        self.priority1 = msg.ptp_bmca_priority1
-        self.clock_class = msg.ptp_bmca_gm_clock_class
-        self.accuracy = msg.ptp_bmca_gm_clock_acc
-        self.variance = msg.ptp_bmca_gm_clock_var
-        self.priority2 = msg.ptp_bmca_priority2
-        self.uniq_id = msg.ptp_clock_id
-        # Obliged to update the period values after a few syncs are received
         self._sync_period = None
         self._delay_period = None
         self._announce_period = None
+        self._time_of_last_sync = 0
+        self._time_of_last_delay = 0
+        self._time_of_last_announce = 0
+        msg = AnnounceMessage(pkt)
+        self.new_announce_message(pkt)
 
     @property
     def sync_period(self):
@@ -57,11 +48,17 @@ class PtpNeighbor(object):
         """Get the latest calculated announce_period"""
         return self._announce_period
 
-        # Default Values
-
-        # Input Checks
-
-        # init ...
+    def new_announce_message(self, pkt):
+        '''
+        Take note of an announce message from this neighbor, to derive
+        the their periodicity
+        '''
+        msg = AnnounceMessage(pkt)
+        self._update_announce_params(msg)
+        now = datetime.datetime.now()
+        if self._time_of_last_announce != 0:
+            self._announce_period = (now - self._time_of_last_announce).total_seconds()
+        self._time_of_last_announce = now
 
 #    def __Private_Method(self):
 #       '''
@@ -70,6 +67,21 @@ class PtpNeighbor(object):
         # Inputs
         # Module Code
         # Output
+
+    def _update_announce_params(self, msg):
+        # According to the pcap data, set this objects' properties
+        self.src_addr_str = msg.ipv4_src_str
+        # Obliged to update delay_mode after P_Delay_Req received 
+        self.delay_mode = "E2E"
+        # Obliged to update step_mode after sync received 
+        self.step_mode = None
+        self.domain = msg.ipv4_dst % 256
+        self.priority1 = msg.ptp_bmca_priority1
+        self.clock_class = msg.ptp_bmca_gm_clock_class
+        self.accuracy = msg.ptp_bmca_gm_clock_acc
+        self.variance = msg.ptp_bmca_gm_clock_var
+        self.priority2 = msg.ptp_bmca_priority2
+        self.uniq_id = msg.ptp_clock_id
 
     def __str__(self):
         stats_str = str()
@@ -90,18 +102,10 @@ class PtpNeighbor(object):
             trimmed_uniq_id = match[0]
         stats_str += ( ' % 16s' % trimmed_uniq_id )
 
-        stats_str += ( ' %.1f' % self.sync_period ) if self.sync_period != None else '   -  '
-        stats_str += ( ' %.1f' % self.delay_period ) if self.delay_period != None else '   -  '
-        stats_str += ( ' %.1f' % self.announce_period ) if self.announce_period != None else '   -  '
+        stats_str += ( ' % 2.2f' % self.sync_period ) if self.sync_period != None else '   -  '
+        stats_str += ( ' % 2.2f' % self.delay_period ) if self.delay_period != None else '   -  '
+        stats_str += ( ' % 2.2f' % self.announce_period ) if self.announce_period != None else '   -  '
         return stats_str
-
-#    def Public_Method(self):
-#        '''
-#        Public Module
-#        '''
-        # Inputs
-        # Module Code
-        # Output
 
 #    def Public_Static_Method():
 
@@ -134,6 +138,7 @@ class PtpNeighbor(object):
 # Class Test
 #==============================================================================
 import unittest
+import time
 
 class TestPtpNeighbor(unittest.TestCase):
     def test_new_from_pcap_file(self):
@@ -160,6 +165,20 @@ class TestPtpNeighbor(unittest.TestCase):
         pn = PtpNeighbor(pkt)
         actual = str(pn)
         expected = "192.168.1.2     E2E  - 129 128   6 0x21 15652 128 001c73ffffb53519   -     -     -  "
+        self.assertEqual(actual, expected)
+
+    def test_updating_announce_period(self):
+        pc = pcap.pcap('single_ptp_announce_packet.pcap')
+        ts, pkt = pc.next()
+        pn = PtpNeighbor(pkt)
+        self.assertIsNone(pn.announce_period)
+        time.sleep(0.667)
+        pc = pcap.pcap('single_ptp_announce_packet.pcap')
+        ts, pkt = pc.next()
+        pn.new_announce_message(pkt)
+        self.assertIsNotNone(pn.announce_period)
+        actual = str(pn)
+        expected = "192.168.1.2     E2E  - 129 128   6 0x21 15652 128 001c73ffffb53519   -     -    0.67"
         self.assertEqual(actual, expected)
 
 

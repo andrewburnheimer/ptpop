@@ -10,6 +10,7 @@ To Do:
 '''
 
 import pcap
+import thread
 from PtpNeighbor import PtpNeighbor
 
 # =============================================================================
@@ -40,27 +41,11 @@ class Listener(object):
 
         # Input Checks
         if intf:
-            self._pcap = pcap.pcap(intf)
-            # Thread - for every packet coming in 
-            for ts, pkt in self._pcap:
-                print str(ts) + ' ' + ':'.join('{:02x}'.format(ord(c)) for c in str(pkt[0:12]))
-                pn = PtpNeighbor(pkt)
-                ptp_neighbor_key = "%s:%d" % (pn.src_addr_str, pn.domain)
-                try:
-                    ptp_neighbor = self.ptp_neighbors[ptp_neighbor_key]
-                    ptp_neighbor.new_announce_message(pn)
-                except KeyError:
-                    self.ptp_neighbors[ptp_neighbor_key] = pn
+            self._pcap = pcap.pcap(name=intf)
+            thread.start_new_thread(self._pcap.loop, (999, self._handle_received_packet))
 
 
-        # TODO When intf is defined, start listening to the interface,
-        # and forward packets into the right PtpNeighbor in
-        # self.ptp_neighbors as they come in.  That PtpNeighbor should
-        # update info, including message periods.
-
-        # init ...
-
-    def readFromPcapFile(self, filename):
+    def read_from_pcap_file(self, filename):
         pc = pcap.pcap(filename)
         for ts, pkt in pc:
             pn = PtpNeighbor(pkt)
@@ -68,10 +53,10 @@ class Listener(object):
             self.ptp_neighbors[pn_key] = pn
 
     @classmethod
-    def fromPcapfile(cls, filename):
+    def from_pcap_file(cls, filename):
         "Initialize Listener with packets read from a pcap"
         l = cls()
-        l.readFromPcapFile(filename)
+        l.read_from_pcap_file(filename)
         return l
 
 #    def Public_Method(self):
@@ -90,13 +75,22 @@ class Listener(object):
 # =============================================================================
 # Private Module Functions
 # =============================================================================
-#def __Private_Function(inputs):
-#        '''
-#        Private Function
-#        '''
-#        # Inputs
-#        # Function code ...
-#        return outputs
+    def _handle_received_packet(self, timestamp, data):
+        '''
+        Interpret a packet observed on the network interface
+
+        Keyword Arguments:
+        ------------------
+        #'''
+        pn = PtpNeighbor(data)
+        ptp_neighbor_key = "%s:%d" % (pn.src_addr_str, pn.domain)
+
+        try:
+            ptp_neighbor = self.ptp_neighbors[ptp_neighbor_key]
+            ptp_neighbor.new_announce_message(data)
+        except KeyError:
+            self.ptp_neighbors[ptp_neighbor_key] = pn
+
 
 # =============================================================================
 # Public Module Functions
@@ -113,12 +107,13 @@ class Listener(object):
 # Class Test
 #==============================================================================
 import unittest
+import time
 
 class TestListener(unittest.TestCase):
     def test_new_with_mock_data(self):
-        l = Listener.fromPcapfile('single_ptp_announce_packet_from_2_to_129.pcap')
-        l.readFromPcapFile('single_ptp_announce_packet_from_3_to_129.pcap')
-        l.readFromPcapFile('single_ptp_announce_packet_from_4_to_129.pcap')
+        l = Listener.from_pcap_file('single_ptp_announce_packet_from_2_to_129.pcap')
+        l.read_from_pcap_file('single_ptp_announce_packet_from_3_to_129.pcap')
+        l.read_from_pcap_file('single_ptp_announce_packet_from_4_to_129.pcap')
 
         ptp_neighbor_keys = iter(l.ptp_neighbors)
         for ptp_neighbor_key in ptp_neighbor_keys:
@@ -143,6 +138,8 @@ class TestListener(unittest.TestCase):
         for ts, pkt in pcap_file:
             pc.sendpacket(str(pkt))
 
+        # Cheap fix to the race condition
+        time.sleep(0.1)
         ptp_neighbor_key = iter(l.ptp_neighbors)
         actual = str(l.ptp_neighbors[ptp_neighbor_key.next()])
         expected = "192.168.1.4     E2E  - 129 128   6 0x21 15652 128 001c73ffff35b519   -     -     -  "
