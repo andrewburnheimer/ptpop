@@ -2,7 +2,7 @@
 
 PTPop provides a dynamic, real-time view of IEEE 1588 Precision Time
 Protocol domains operating on a network. The name is yet another, more
-playful variant of other popular monitoring tools (e.g. top, ntop, htop,
+playful, variant of other popular monitoring tools (e.g. top, ntop, htop,
 etc.)
 
 Another tool that provides this sort of functionality in a graphical
@@ -19,11 +19,43 @@ details T.B.D, and will be provided in the file LICENSE.txt.
 
 ## Pre-Requisites
 
-Maintained in the `setup.py` file. The following command will
-automatically handle their installation.
+Install the `libpcap` development resources (headers, etc.) accordingly
+for your operating system, e.g.:
 
 ```
-pip install pypcap
+$ sudo apt-get install libpcap-dev python-dev
+```
+
+The following command will automatically handle the remainder of the
+installation:
+
+```
+$ sudo pip install ptpop
+Downloading/unpacking ptpop
+  Downloading ptpop-1.0.2.tar.gz
+  Running setup.py (path:/tmp/pip_build_root/ptpop/setup.py) egg_info for package ptpop
+
+Downloading/unpacking pypcap (from ptpop)
+  Downloading pypcap-1.1.5.tar.gz (44kB): 44kB downloaded
+  Running setup.py (path:/tmp/pip_build_root/pypcap/setup.py) egg_info for package pypcap
+    Found pcap headers in /usr/include/pcap/pcap.h
+    Found libraries in /usr/lib/x86_64-linux-gnu/libpcap.a
+    No pcap-int.h found
+    found pcap_setdirection
+    found pcap_setnonblock
+    found pcap_compile_nopcap function
+    found pcap_file function
+
+Installing collected packages: ptpop, pypcap
+  Running setup.py install for ptpop
+
+    Installing ptpop script to /usr/local/bin
+  Running setup.py install for pypcap
+    Found pcap headers in /usr/include/pcap/pcap.h
+    Found libraries in /usr/lib/x86_64-linux-gnu/libpcap.a
+. . .
+Successfully installed ptpop pypcap
+Cleaning up...
 ```
 
 
@@ -34,13 +66,16 @@ For use in your application, import the library with `import ptpop`.
 For command line usage, see usage document with:
 
 ```
-(ptpop)root@raspberrypi:~/ptpop# python -m ptpop.Console -h
+$ ptpop -h
 ```
 
 ### Example
 
+Run the following as the `root` user:
+
 ```
-(ptpop)root@raspberrypi:~/ptpop# python -m ptpop.Console -n 4 -l
+$ sudo -s
+# ptpop -n 4 -l
 Fri Oct 21 2016 07:26:47.385 UTC
 remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  AnnT
 ====================================================================================
