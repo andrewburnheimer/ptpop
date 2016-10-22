@@ -8,8 +8,8 @@ To Do:
 '''
 
 from Listener import Listener
+from _version import __version__
 import time
-import os
 
 # =============================================================================
 # Console
@@ -111,10 +111,6 @@ remote          Dly St Dom Pr1  Cl Acc   Var  Pr2       Uniq       SyncT  DlyT  
 import argparse
 
 def main():
-    version = ""
-    with open(os.path.join('./', 'VERSION')) as version_file:
-        version = version_file.read().strip()
-
     parser = argparse.ArgumentParser(prog='ptpop', description='Gain ' +
         'insight into the operations of IEEE 1588 Precision Time Protocol ' +
         'domains on a network. Press the \'q\' key to quit.')
@@ -146,7 +142,7 @@ def main():
                         help='Specifies the maximum number of iterations ' +
                         'in interactive mode before ending.')
     parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s ' + version)
+                        version='%(prog)s ' + __version__)
 
     args = parser.parse_args()
     try:
