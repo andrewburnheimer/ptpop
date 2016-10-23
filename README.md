@@ -12,9 +12,10 @@ http://www.meinbergglobal.com/english/sw/#ptp-mon .
 
 ## License
 
-Commercial and private use are permitted. Distribution, modification,
-and sublicensing at the moment are all forbidden. Specific copyright
-details T.B.D, and will be provided in the file LICENSE.txt.
+The user of this software is free to use it for any purpose, to
+distribute it, to modify it, and to distribute modified versions of the
+software, under the terms of the *Apache License 2.0* contained in
+LICENSE.txt, without concern for royalties.
 
 
 ## Pre-Requisites

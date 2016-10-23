@@ -8,7 +8,7 @@ setup(
     author_email='Andrew.Burnheimer@nbcuni.com',
     url='http://github.com/andrewburnheimer/ptpop',
     description='top for PTP',
-    license='CC-By-SA-4.0',
+    license='ASLv2',
     install_requires=['pypcap'],
     entry_points={
         'console_scripts': [
