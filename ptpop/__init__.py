@@ -15,5 +15,8 @@ __license__ = 'Creative Commons Attribution and ShareAlike'
 from Console import Console
 from Listener import Listener
 from PtpNeighbor import PtpNeighbor
+from PtpPacket import PtpPacket
+from SyncMessage import SyncMessage
+from FollowUpMessage import FollowUpMessage
 from AnnounceMessage import AnnounceMessage
 from _version import __version__

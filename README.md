@@ -62,7 +62,27 @@ Cleaning up...
 
 ## Usage
 
-For use in your application, import the library with `import ptpop`.
+For use in your application:
+
+```
+# python
+Python 2.7.9 (default, Mar  8 2015, 00:52:26)
+[GCC 4.9.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pcap
+>>> from ptpop import *
+>>> def handle(ts, pkt):
+...     print str(ts) + ": " + str(PtpPacket(pkt))
+...
+>>> pc = pcap.pcap("eth0")
+>>> pc.setfilter('dst port 319 or dst port 320')
+>>> pc.loop(5, handle)
+1477337497.62: <ptp announce ID: 0x0050b6fffe5d3bd3 169.254.134.126 -> 224.0.1.129 seq: 5729>
+1477337497.62: <ptp follow-up ID: 0x0050b6fffe5d3bd3 169.254.134.126 -> 224.0.1.129 seq: 11459>
+1477337498.62: <ptp sync ID: 0x0050b6fffe5d3bd3 169.254.134.126 -> 224.0.1.129 seq: 11460>
+1477337498.62: <ptp follow-up ID: 0x0050b6fffe5d3bd3 169.254.134.126 -> 224.0.1.129 seq: 11460>
+1477337514.62: <ptp sync ID: 0x0050b6fffe5d3bd3 169.254.134.126 -> 224.0.1.129 seq: 11476>
+```
 
 For command line usage, see usage document with:
 

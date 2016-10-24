@@ -28,11 +28,11 @@ class Listener(object):
 
         # Input Checks
         if intf:
-            self._event_pcap = pcap.pcap(name=intf)
-            self._event_pcap.setfilter('dst port 319 or dst port 320')
+            self._pcap = pcap.pcap(name=intf)
+            self._pcap.setfilter('dst port 319 or dst port 320')
             # UDP port 319: Sync, Delay_Req, Pdelay_Req, Pdelay_Resp
             # UDP port 320: Follow_Up, Delay_Resp, Pdelay_Resp_Follow_Up, Announce, Management, Signaling
-            thread.start_new_thread(self._event_pcap.loop, (999, self._handle_received_packet))
+            thread.start_new_thread(self._pcap.loop, (999, self._handle_received_packet))
 
 
     def read_from_pcap_file(self, filename):
